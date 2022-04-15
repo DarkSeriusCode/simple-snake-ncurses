@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "src/interface/interface.h"
-#include "src/snake/snake.h"
+#include "src/interface.h"
+#include "src/snake.h"
 
 const border_style DEFAULT_BORDER = {0, 0, 0, 91, 93};
 
 int main(int argc, char **argv)
 {
-    // Установка сида
+    // Setting seed
     int seed = time(NULL);
     if (argc >= 2)
     {
@@ -17,19 +17,20 @@ int main(int argc, char **argv)
     }
 
     app *application = init_app(1, "Snake", DEFAULT_BORDER, 1);
-    rect snake_head = {1, 1, COLOR_GREEN, '#'};
-    rect apple = {0, 0, COLOR_RED, '@'};
+    point snake_head = {1, 1, COLOR_GREEN, '#'};
+    point apple = {0, 0, COLOR_RED, '@'};
     snake *s = create_snake(application->wndw, snake_head);
     srand(seed);
+
     int key;
     unsigned score = 0;
     bool pause = false;
     bool gameover = false;
 
-    // Вывод сида
+    // Seed displaying
     char buffer[18];
-    sprintf(buffer, "Seed: %lld", seed);
-    int x_pos = getmaxx(stdscr) - (strlen(buffer) + 5); // отступ от границы 5
+    sprintf(buffer, "Seed: %d", seed);
+    int x_pos = getmaxx(stdscr) - (strlen(buffer) + 5); // margin from border 5
     app_print(x_pos, 0, COLOR_MAGENTA, buffer);
 
     app_print(0, 0, COLOR_GREEN, "Q - quit, P - pause");
@@ -39,11 +40,11 @@ int main(int argc, char **argv)
     {
         key = getch();
 
-        // Условие выхода
+        // Exit condition
         if (key == 'q')
             break;
 
-        // Пауза
+        // Pause
         if (key == 'p' && !gameover)
         {
             if (pause)
@@ -58,18 +59,18 @@ int main(int argc, char **argv)
             }
         }
 
-        // Конец игры
+        // GameOver
         if (gameover)
         {
             pause = true;
             app_print(0, 0, COLOR_RED, "Game Over ;-; [Press Q to quit]");
         }
 
-        // Обновление змейки
+        // Snake update
         if (!pause)
             snake_update(s, key);
 
-        // Подбор яблок
+        // Apple eating
         if (check_apple_collide(s, apple))
         {
             replace_apple(&apple, application->width, application->height);
@@ -80,12 +81,12 @@ int main(int argc, char **argv)
         }
 
         check_wall_collision(s);
-        if (tail_collide(*s))
+        if (check_tail_collide(*s))
             gameover = true;
 
-        // Рендер
+        // Render
         app_clear(application);
-        draw_rect(application->wndw, apple); // Рендер яблока
+        draw_point(application->wndw, apple); // Apple render
         snake_draw(s);
         render_app(application);
     }

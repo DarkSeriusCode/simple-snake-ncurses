@@ -1,26 +1,25 @@
-# VARS
+CC = gcc
+LIBS = -lncurses
+TARGET ?= snake
 
-BINS = bin/snake.o bin/interface.o
-INTERFACE_SRC = src/interface
-SNAKE_SRC = src/snake
+SOURCES = $(wildcard src/*.c)
+OBJETCS = $(patsubst %, bin/%.o, $(notdir $(basename $(SOURCES))))
+HEADERS = $(wildcard src/*.h)
+VPATH += src
 
-bin/interface.o: $(INTERFACE_SRC)/interface.h $(INTERFACE_SRC)/interface.c
-	gcc $(INTERFACE_SRC)/interface.c -c -o bin/interface.o -lncurses
+# ------------------------------------------------------------------------------
 
-bin/snake.o: $(SNAKE_SRC)/snake.h $(SNAKE_SRC)/snake.c
-	gcc $(SNAKE_SRC)/snake.c -c -o bin/snake.o -lncurses
+.PHONY: all
+all: $(TARGET)
 
-snake: main.c $(BINS)
-	gcc main.c $(BINS) -o snake -lncurses
-
-objects: $(BINS)
-	echo "Complete"
-
-build: snake
-	echo "Builded!"
-
-run: snake
-	./snake
-
+.PHONY: clean
 clean:
-	rm bin/*
+	rm -rf  bin/*.o snake
+
+$(TARGET): main.c $(OBJETCS) $(HEADERS)
+	$(CC) $< $(OBJETCS) -o $@ $(LIBS)
+	@echo "[\033[33mSnake\033[0m]: \033[4m\033[32mBuilded\033[0m"
+
+$(OBJETCS): bin/%.o: %.c %.h
+	$(CC) -c $< -o $@ $(LIBS)
+	@echo "[\033[33mSnake\033[0m]: \033[4m$@\033[0m"

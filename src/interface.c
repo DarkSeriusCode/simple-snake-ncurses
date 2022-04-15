@@ -7,7 +7,7 @@
 // APP COMPONENTS
 // ==============
 
-app *init_app(int _halfdelay, char *title, border_style s, int margin)
+app *init_app(int _halfdelay, char *title, border_style s, int indent)
 {
     initscr();
     noecho();
@@ -17,7 +17,6 @@ app *init_app(int _halfdelay, char *title, border_style s, int margin)
 
     app *_app = malloc(sizeof(app));
 
-    // Инициализация палитр
     if (has_colors() == false)
     {
         destroy_app(_app);
@@ -26,12 +25,12 @@ app *init_app(int _halfdelay, char *title, border_style s, int margin)
     }
     start_color();
 
-    // Инициализация палитр. Все цвета на чёрном фоне (кроме чёрного)
+    // Initialized colors: (thet are all on a black bg, without black color)
     /*
-        1 - Красный     5 - фиолетовый
-        2 - Зелёный     6 - Бирюзовый
-        3 - Жёлтый      7 - белый
-        4 - Синий
+        1 - Red         5 - Magenta
+        2 - Green       6 - Сyan
+        3 - Yellow      7 - White
+        4 - Blue
 
     */
     for (int color = 1; color <= COLOR_WHITE; color++)
@@ -41,17 +40,17 @@ app *init_app(int _halfdelay, char *title, border_style s, int margin)
 
     _app->border = s;
 
-    // Расчитываем положение окна и его размеры
+    // Calculating the window size and position
     int max_x, max_y;
-    int x, y;          // Положение основного окна
-    int width, height; // Размер основного окна
+    int x, y;
+    int width, height
     getmaxyx(stdscr, max_y, max_x);
-    x = margin;
-    y = margin + 2; // Отступ вверху
-    width = max_x - (margin * 2);
-    height = max_y - (margin * 2) - 2; // 2 строки под вывод сообщений
+    x = indent;
+    y = indent + 2; // Upper indentation
+    width = max_x - (indent * 2);
+    height = max_y - (indent * 2) - 2; // 2 lines for messages
 
-    // расчитываем всё необходимое для заголовка
+    // Creating a window title
     int title_lenght = strlen(title);
 
     int title_render_start;
@@ -60,7 +59,7 @@ app *init_app(int _halfdelay, char *title, border_style s, int margin)
     _app->ttl = head;
 
     refresh();
-    // -1 потому, что граница занимает один символ
+    // -1 because the border char
     _app->width = width - 1;
     _app->height = height - 1;
     _app->wndw = newwin(height, width, y, x);
@@ -74,8 +73,8 @@ void render_app(app *_app)
     border_style s = _app->border;
     wborder(_app->wndw, s.v, s.v, s.h, s.h,
             s.a, s.a, s.a, s.a);
-    // Рендер заголовка
-    // _app->ttl.render_start - 2 т.к 2 символа отводятся под декор
+    // Title rendering
+    // _app->ttl.render_start - 2 because 2 char for opening-closing chars
     wmove(_app->wndw, 0, _app->ttl.render_start - 2);
     wprintw(_app->wndw, "%c%s%c", _app->border.open_title,
             _app->ttl.title, _app->border.close_title);
@@ -105,17 +104,15 @@ void app_clear(app *_app)
 void app_print(int x, int y, unsigned short pair, char *message)
 {
     static char *last_message = "";
-    // Сохраняем старое положение курсора
     int old_cur_x, old_cur_y;
     getyx(stdscr, old_cur_y, old_cur_x);
 
-    // Очищаем верхнюю строкчу
     for (int i = 1; i < strlen(last_message) + 2; i++)
         mvprintw(y, i, " ");
 
     attron(COLOR_PAIR(pair));
     mvprintw(y, x, "<%s>", message);
-    last_message = message;
+    last_message = message; // Saves message for correct cleaning in the future
     attroff(COLOR_PAIR(pair));
 
     move(old_cur_y, old_cur_x);

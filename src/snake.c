@@ -3,10 +3,10 @@
 #include "snake.h"
 
 // ===============
-// ФУНКЦИИ ЗМЕЙКИ
+// SNAKE FUNCTIONS
 // ===============
 
-snake *create_snake(WINDOW *wndw, rect snake_part)
+snake *create_snake(WINDOW *wndw, point snake_part)
 {
     snake *sn = malloc(sizeof(snake));
     int x, y;
@@ -107,7 +107,7 @@ void check_wall_collision(snake *sn)
     }
 }
 
-bool tail_collide(snake sn)
+bool check_tail_collide(snake sn)
 {
     for (int i = 0; i < sn.tail->size; i++)
     {
@@ -120,28 +120,28 @@ bool tail_collide(snake sn)
 
 void snake_draw(snake *s)
 {
-    draw_rect(s->wndw, s->head);
+    draw_point(s->wndw, s->head);
     for (int i = 0; i < s->lenght; i++)
     {
-        draw_rect(s->wndw, s->tail->_queue[i]);
+        draw_point(s->wndw, s->tail->_queue[i]);
     }
 }
 
 // ===============
-// ФУНКЦИИ ОЧЕРЕДИ
+// QUEUE FUNCTIONS
 // ===============
 
-rect_queue *create_queue(const int max_size)
+point_queue *create_queue(const int max_size)
 {
-    rect_queue *q = malloc(sizeof(rect_queue));
-    q->_queue = malloc(sizeof(rect) * max_size);
+    point_queue *q = malloc(sizeof(point_queue));
+    q->_queue = malloc(sizeof(point) * max_size);
     q->max_size = max_size;
     q->put_index = 0;
     q->size = 0;
     return q;
 }
 
-short queue_add(rect_queue *q, rect item)
+short queue_add(point_queue *q, point item)
 {
     if (q->put_index > q->max_size)
         return -1;
@@ -152,17 +152,16 @@ short queue_add(rect_queue *q, rect item)
     }
 }
 
-rect queue_get(rect_queue *q)
+point queue_get(point_queue *q)
 {
-    rect item = {-1, -1, -1, -1};
+    point item = {-1, -1, -1, -1};
 
-    // ПОЖАЛУЙСТА, НЕ МЕНЯЙТЕ УСЛОВИЕ! ОНО ВООБЩЕ НЕ ДОЛЖНО РАБОТАТЬ
     if (q->put_index <= 0)
         return item;
 
     item = q->_queue[0];
 
-    // *Смещение элементов очереди
+    // Shifting queue elements
     for (int i = 0; i < q->put_index; ++i)
     {
         q->_queue[i] = q->_queue[i + 1];
@@ -173,16 +172,16 @@ rect queue_get(rect_queue *q)
 }
 
 // ===============
-// ФУНКЦИИ ЯБЛОК
+// APPLE FUNCTIONS
 // ===============
 
-void replace_apple(rect *apple, int width, int height)
+void replace_apple(point *apple, int width, int height)
 {
     apple->x = 1 + rand() % (width - 2);
     apple->y = 1 + rand() % (height - 2);
 }
 
-bool check_apple_collide(snake *s, rect apple)
+bool check_apple_collide(snake *s, point apple)
 {
     if (s->head.x == apple.x && s->head.y == apple.y)
     {
@@ -193,10 +192,10 @@ bool check_apple_collide(snake *s, rect apple)
 }
 
 // ===============
-// ОБЩИЕ ФУНКЦИИ
+// OTHER FUNCTIONS
 // ===============
 
-void draw_rect(WINDOW *wndw, rect r)
+void draw_point(WINDOW *wndw, point r)
 {
     wmove(wndw, r.y, r.x);
     wattron(wndw, COLOR_PAIR(r.pair_number));
