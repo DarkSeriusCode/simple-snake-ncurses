@@ -43,7 +43,7 @@ app *init_app(int _halfdelay, char *title, border_style s, int indent)
     // Calculating the window size and position
     int max_x, max_y;
     int x, y;
-    int width, height
+    int width, height;
     getmaxyx(stdscr, max_y, max_x);
     x = indent;
     y = indent + 2; // Upper indentation
