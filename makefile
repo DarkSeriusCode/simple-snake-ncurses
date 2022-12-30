@@ -20,4 +20,5 @@ $(TARGET): main.c $(OBJETCS) $(HEADERS)
 	$(CC) $< $(OBJETCS) -o $@ $(LIBS)
 
 $(OBJETCS): bin/%.o: %.c %.h
+	mkdir bin -p
 	$(CC) -c $< -o $@ $(LIBS)
